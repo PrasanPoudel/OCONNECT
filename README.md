@@ -2,13 +2,17 @@
 
 A clean, production-ready **Contact Record Management System** built with **Node.js**, **Express.js**, **MongoDB (Mongoose)**, **EJS**, **Bootstrap 5**, **Express Session**, **bcrypt**, **Multer**, **Cloudinary**, **Express Validator**, and **Helmet/CSRF** protection. No frontend framework is used — the UI is server-rendered with reusable EJS partials following the MVC architecture.
 
+## Live Website
+
+[https://oconnect.onrender.com](https://oconnect.onrender.com)
+
 ## Screenshots
 
-### Dashboard
+### Dashboard Page
 
 ![Dashboard](screenshot/dashboard_page.png)
 
-### Contacts
+### Contacts Page
 
 ![Contacts](screenshot/contacts_page.png)
 
