@@ -1,0 +1,73 @@
+<%- include('../partials/header', { title: 'Login', active: 'login', hideAuthLinks: true }) %>
+
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="logo"><i class="bi bi-person-lines-fill"></i></div>
+        <div class="name">OConnect</div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h5 mb-3 text-center">Welcome back</h1>
+
+          <% if (typeof errors !== 'undefined' && errors.length) { %>
+            <div class="alert alert-danger">
+              <ul class="mb-0 ps-3">
+                <% errors.forEach(function (e) { %><li><%= e.msg %></li><% }); %>
+              </ul>
+            </div>
+          <% } %>
+
+          <form action="/auth/login" method="POST" novalidate>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                value="<%= typeof values !== 'undefined' && values.email ? values.email : '' %>"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="password" name="password" required />
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Show password">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100">Login</button>
+          </form>
+
+          <p class="text-center mt-3 mb-0 text-muted">
+            No account yet? <a href="/auth/register">Create one</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<%- include('../partials/footer', {
+  extraScripts: `
+    <script>
+      (function () {
+        var toggle = document.getElementById('togglePassword');
+        var input = document.getElementById('password');
+        toggle.addEventListener('click', function () {
+          var show = input.type === 'password';
+          input.type = show ? 'text' : 'password';
+          toggle.querySelector('i').classList.toggle('bi-eye', !show);
+          toggle.querySelector('i').classList.toggle('bi-eye-slash', show);
+        });
+      })();
+    </script>
+  `
+}) %>

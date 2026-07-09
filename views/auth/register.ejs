@@ -1,0 +1,100 @@
+<%- include('../partials/header', { title: 'Register', active: 'register', hideAuthLinks: true }) %>
+
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="logo"><i class="bi bi-person-lines-fill"></i></div>
+        <div class="name">OConnect</div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h5 mb-3 text-center">Create your account</h1>
+
+          <% if (typeof errors !== 'undefined' && errors.length) { %>
+            <div class="alert alert-danger">
+              <ul class="mb-0 ps-3">
+                <% errors.forEach(function (e) { %><li><%= e.msg %></li><% }); %>
+              </ul>
+            </div>
+          <% } %>
+
+          <form action="/auth/register" method="POST" novalidate>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+            <div class="mb-3">
+              <label for="name" class="form-label">Full Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                value="<%= typeof values !== 'undefined' && values.name ? values.name : '' %>"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                value="<%= typeof values !== 'undefined' && values.email ? values.email : '' %>"
+                required
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="password" name="password" minlength="6" required />
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword" aria-label="Show password">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+              <div class="form-text">At least 6 characters.</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Confirm Password</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required />
+                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword" aria-label="Show confirm password">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100">Register</button>
+          </form>
+
+          <p class="text-center mt-3 mb-0 text-muted">
+            Already have an account? <a href="/auth/login">Sign in</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<%- include('../partials/footer', {
+  extraScripts: `
+    <script>
+      (function () {
+        function setupToggle(toggleId, inputId) {
+          var toggle = document.getElementById(toggleId);
+          var input = document.getElementById(inputId);
+          toggle.addEventListener('click', function () {
+            var show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            toggle.querySelector('i').classList.toggle('bi-eye', !show);
+            toggle.querySelector('i').classList.toggle('bi-eye-slash', show);
+          });
+        }
+        setupToggle('togglePassword', 'password');
+        setupToggle('toggleConfirmPassword', 'confirmPassword');
+      })();
+    </script>
+  `
+}) %>

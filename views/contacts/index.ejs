@@ -1,0 +1,130 @@
+<%- include('../partials/header', { title: 'My Contacts', active: 'contacts' }) %>
+
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h1 class="h3 mb-0">My Contacts</h1>
+    <a href="/contacts/new" class="btn btn-dark">
+      <i class="bi bi-plus-lg me-1"></i>Add Contact
+    </a>
+  </div>
+
+  <!-- Search / filter / sort bar -->
+  <form method="GET" action="/contacts" class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label small text-muted mb-1">Search</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input
+              type="text"
+              class="form-control"
+              name="search"
+              placeholder="Name, phone, email or company"
+              value="<%= typeof query !== 'undefined' && query.search ? query.search : '' %>"
+            />
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small text-muted mb-1">Sort by</label>
+          <select class="form-select" name="sort" onchange="this.form.submit()">
+            <option value="newest" <%= query.sort === 'newest' || !query.sort ? 'selected' : '' %>>Newest</option>
+            <option value="oldest" <%= query.sort === 'oldest' ? 'selected' : '' %>>Oldest</option>
+            <option value="name_asc" <%= query.sort === 'name_asc' ? 'selected' : '' %>>Name (A-Z)</option>
+            <option value="name_desc" <%= query.sort === 'name_desc' ? 'selected' : '' %>>Name (Z-A)</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <div class="form-check mt-4">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              name="favorite"
+              value="on"
+              id="favFilter"
+              <%= query.favorite === 'on' ? 'checked' : '' %>
+              onchange="this.form.submit()"
+            />
+            <label class="form-check-label" for="favFilter">
+              <i class="bi bi-star-fill text-warning"></i> Favorites only
+            </label>
+          </div>
+        </div>
+        <div class="col-md-2 d-grid">
+          <button type="submit" class="btn btn-dark">Apply</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <% if (contacts.length === 0) { %>
+    <div class="card border-0">
+      <div class="empty-state">
+        <i class="bi bi-people"></i>
+        <p class="mt-3 mb-3">No contacts found.</p>
+        <a href="/contacts/new" class="btn btn-dark">Add your first contact</a>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+      <% contacts.forEach(function (c) { %>
+        <div class="col">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <img
+                  src="<%= c.imageUrl %>"
+                  alt="<%= c.fullName %>"
+                  class="rounded-circle me-3"
+                  width="52"
+                  height="52"
+                />
+                <div class="text-truncate">
+                  <h2 class="contact-name mb-0 text-truncate">
+                    <%= c.fullName %>
+                    <% if (c.favorite) { %><i class="bi bi-star-fill text-warning ms-1"></i><% } %>
+                  </h2>
+                  <div class="contact-meta text-truncate"><%= c.company || 'No company' %></div>
+                </div>
+              </div>
+              <ul class="list-unstyled contact-info mb-3">
+                <% if (c.phone) { %><li><i class="bi bi-telephone me-1"></i><%= c.phone %></li><% } %>
+                <% if (c.email) { %><li class="text-truncate"><i class="bi bi-envelope me-1"></i><%= c.email %></li><% } %>
+                <% if (c.jobTitle) { %><li><i class="bi bi-briefcase me-1"></i><%= c.jobTitle %></li><% } %>
+              </ul>
+              <div class="d-flex gap-2">
+                <a href="/contacts/<%= c._id %>" class="btn btn-sm btn-outline-dark flex-fill">View</a>
+                <a href="/contacts/<%= c._id %>/edit" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form action="/contacts/<%= c._id %>?_method=DELETE" method="POST" class="d-inline">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm btn-outline-danger" data-confirm="Delete this contact?">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <!-- Pagination -->
+    <% if (pagination.totalPages > 1) { %>
+      <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item <%= pagination.hasPrev ? '' : 'disabled' %>">
+            <a class="page-link" href="?page=<%= pagination.prev %>&search=<%= query.search || '' %>&sort=<%= query.sort || '' %>&favorite=<%= query.favorite || '' %>">Previous</a>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link">Page <%= pagination.page %> of <%= pagination.totalPages %></span>
+          </li>
+          <li class="page-item <%= pagination.hasNext ? '' : 'disabled' %>">
+            <a class="page-link" href="?page=<%= pagination.next %>&search=<%= query.search || '' %>&sort=<%= query.sort || '' %>&favorite=<%= query.favorite || '' %>">Next</a>
+          </li>
+        </ul>
+      </nav>
+    <% } %>
+  <% } %>
+
+<%- include('../partials/footer') %>

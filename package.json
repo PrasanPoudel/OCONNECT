@@ -1,0 +1,41 @@
+{
+  "name": "ocontact",
+  "version": "1.0.0",
+  "description": "Contact Record Management System built with Node.js, Express, MongoDB, EJS and Bootstrap.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "express",
+    "mongodb",
+    "mongoose",
+    "contacts",
+    "ejs",
+    "bootstrap"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cloudinary": "^2.2.0",
+    "connect-flash": "^0.1.1",
+    "csurf": "^1.11.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^6.0.1",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.1.0",
+    "helmet": "^7.1.0",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.5.1",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "nodemon": "^3.1.4"
+  }
+}
