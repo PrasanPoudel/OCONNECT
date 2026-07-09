@@ -3,6 +3,7 @@ const express = require("express");
 const helmet = require("helmet");
 const session = require("express-session");
 const flash = require("connect-flash");
+const cookieParser = require("cookie-parser");
 const csurf = require("csurf");
 const upload = require("./middleware/upload");
 const methodOverride = require("method-override");
@@ -63,6 +64,8 @@ app.use(
 );
 app.use(flash());
 
+app.use(cookieParser(process.env.SESSION_SECRET));
+
 // Use a signed double-submit CSRF cookie instead of server-side session storage.
 app.use(csurf({ cookie: { httpOnly: true, secure: isProd, sameSite: "lax" } }));
 app.use((req, res, next) => {
@@ -84,9 +87,9 @@ app.use("/contacts", contactRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on PORT: ${PORT}`);
 });
 
 module.exports = app;
