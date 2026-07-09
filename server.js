@@ -1,81 +1,85 @@
-require('dotenv').config();
-const express = require('express');
-const helmet = require('helmet');
-const session = require('express-session');
-const flash = require('connect-flash');
-const csurf = require('csurf');
-const upload = require('./middleware/upload');
-const methodOverride = require('method-override');
-const path = require('path');
+require("dotenv").config();
+const express = require("express");
+const helmet = require("helmet");
+const session = require("express-session");
+const flash = require("connect-flash");
+const csurf = require("csurf");
+const upload = require("./middleware/upload");
+const methodOverride = require("method-override");
+const path = require("path");
 
-const connectDB = require('./config/db');
-const authRoutes = require('./routes/authRoutes');
-const contactRoutes = require('./routes/contactRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes');
-const { errorHandler, notFound } = require('./middleware/errorHandler');
+const connectDB = require("./config/db");
+const authRoutes = require("./routes/authRoutes");
+const contactRoutes = require("./routes/contactRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const { errorHandler, notFound } = require("./middleware/errorHandler");
 
 const app = express();
 
+// Trust Render's HTTPS reverse proxy so secure cookies / session work correctly
+app.set("trust proxy", 1);
+
 connectDB();
 
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
-        styleSrc: ["'self'", 'https://cdn.jsdelivr.net', "'unsafe-inline'"],
-        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net', "'unsafe-inline'"],
-        fontSrc: ["'self'", 'https://cdn.jsdelivr.net']
-      }
-    }
-  })
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+        styleSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
+        fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      },
+    },
+  }),
 );
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(methodOverride('_method'));
+app.use(methodOverride("_method"));
 
-app.use(upload.single('profileImage'));
+app.use(upload.single("profileImage"));
 
-const isProd = process.env.NODE_ENV === 'production';
+const isProd = process.env.NODE_ENV === "production";
 app.use(
   session({
-    name: 'ocontact.sid',
-    secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
+    name: "ocontact.sid",
+    secret: process.env.SESSION_SECRET || "dev_secret_change_me",
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
       secure: isProd,
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24 * 7
-    }
-  })
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    },
+  }),
 );
 app.use(flash());
 
-app.use(csurf());
+// Use a signed double-submit CSRF cookie instead of server-side session storage.
+app.use(csurf({ cookie: { httpOnly: true, secure: isProd, sameSite: "lax" } }));
 app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken();
   res.locals.user = req.session.user || null;
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
   next();
 });
 
-app.get('/', (req, res) => {
-  res.redirect(req.session.userId ? '/dashboard' : '/auth/login');
+app.get("/", (req, res) => {
+  res.redirect(req.session.userId ? "/dashboard" : "/auth/login");
 });
 
-app.use('/auth', authRoutes);
-app.use('/dashboard', dashboardRoutes);
-app.use('/contacts', contactRoutes);
+app.use("/auth", authRoutes);
+app.use("/dashboard", dashboardRoutes);
+app.use("/contacts", contactRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
